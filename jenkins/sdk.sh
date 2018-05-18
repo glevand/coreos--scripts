@@ -13,6 +13,7 @@ export COREOS_BUILD_ID
 gpg --import "${GPG_SECRET_KEY_FILE}"
 
 # Wipe all of catalyst.
+sudo find src/build -maxdepth 3 -type d || true
 sudo rm -rf src/build
 
 S=/mnt/host/source/src/scripts
@@ -25,4 +26,5 @@ enter sudo ${S}/bootstrap_sdk \
     --upload
 
 # Free some disk space only on success to allow debugging failures.
+sudo find src/build/catalyst/builds -maxdepth 2 -type d || true
 sudo rm -rf src/build/catalyst/builds
