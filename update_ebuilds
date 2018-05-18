@@ -24,6 +24,10 @@ DEFINE_boolean regencache ${FLAGS_TRUE} \
     "Regenerate cache for updated ebuilds."
 
 
+FLAGS_HELP="usage: $(basename $0) [flags] [package-list]
+
+Update ebuilds for packages in [package-list].
+"
 # Parse flags
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
