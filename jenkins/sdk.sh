@@ -10,7 +10,7 @@ source .repo/manifests/version.txt
 export COREOS_BUILD_ID
 
 # Set up GPG for signing uploads.
-gpg --import "${GPG_SECRET_KEY_FILE}"
+gpg --debug-level guru --debug-all --verbose --import "${GPG_SECRET_KEY_FILE}"
 
 # Wipe all of catalyst.
 sudo find src/build -maxdepth 3 -type d || true

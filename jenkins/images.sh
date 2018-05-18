@@ -27,7 +27,7 @@ source .repo/manifests/version.txt
 export COREOS_BUILD_ID
 
 # Set up GPG for signing uploads.
-gpg --import "${GPG_SECRET_KEY_FILE}"
+gpg --debug-level guru --debug-all --verbose --import "${GPG_SECRET_KEY_FILE}"
 
 script setup_board \
     --board="${BOARD}" \
@@ -46,7 +46,7 @@ mkdir -p torcx/pkgs
 enter gsutil cp -r \
     "${DOWNLOAD_ROOT}/torcx/manifests/${BOARD}/${COREOS_VERSION}/torcx_manifest.json"{,.sig} \
     /mnt/host/source/torcx/
-gpg --verify torcx/torcx_manifest.json.sig
+gpg --debug-level guru --debug-all --verbose --verify torcx/torcx_manifest.json.sig
 
 # Download all cas references from the manifest and verify their checksums
 # TODO: technically we can skip ones that don't have a 'path' since they're not
