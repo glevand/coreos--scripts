@@ -71,6 +71,7 @@ function torcx_dependencies() (
 function torcx_build() (
         pkg=${2:?}
         tmproot=${1:?}
+        local verbosity="--quiet"
 
         export LDFLAGS=-Wl,-rpath,/ORIGIN/../lib
         export PKGDIR="${tmproot}/var/lib/portage/pkgs"
@@ -79,12 +80,14 @@ function torcx_build() (
         [ -s "${tmproot}/etc/portage/bashrc" ] &&
         . "${tmproot}/etc/portage/bashrc"
 
+        [ -z ${BUILD_TORCX_VERBOSE} ] || verbosity="--verbose"
+
         emerge-${BOARD} \
             --nodeps \
             --oneshot \
             --root="${tmproot}" \
             --root-deps=rdeps \
-            --quiet \
+            ${verbosity} \
             "${pkg}"
 )
 
