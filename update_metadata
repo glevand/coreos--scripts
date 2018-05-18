@@ -10,6 +10,11 @@ SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
 DEFINE_boolean commit ${FLAGS_FALSE} \
     "Commit all changes after updating."
 
+FLAGS_HELP="usage: $(basename $0) [flags] [repo-list]
+
+Update metadata/md5-cache/ for repositories in [repo-list].
+"
+
 # Parse flags
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
