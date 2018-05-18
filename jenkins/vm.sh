@@ -27,7 +27,7 @@ source .repo/manifests/version.txt
 export COREOS_BUILD_ID
 
 # Set up GPG for signing uploads.
-gpg --import --debug-level guru --debug-all --verbose "${GPG_SECRET_KEY_FILE}"
+gpg --import "${GPG_SECRET_KEY_FILE}"
 
 [ -s verify.asc ] && verify_key=--verify-key=verify.asc || verify_key=
 
