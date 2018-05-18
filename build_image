@@ -226,6 +226,9 @@ print_image_to_vm() {
   fi
 
   cat << EOF
+To create all supported virtual machine images, use:
+  VERSION=${IMAGE_SUBDIR} board=${BOARD} ./build_vms
+
 To convert it to a virtual machine image, use:
   ./image_to_vm.sh --from=${OUTSIDE_OUTPUT_DIR} --board=${BOARD} ${flags}
 

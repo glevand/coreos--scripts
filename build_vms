@@ -1,0 +1,86 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_NAME=$(basename "$0")
+
+if [[ "${1:0:2}" == "-h" ]]; then
+	echo "Usage: [V=1] [VERSION=<version>] [board=<board>] ${SCRIPT_NAME} [<version>]"
+	exit 1
+fi
+
+if [[ -n "${1}" ]]; then
+	version="${1}"
+else
+	: ${version:="latest"}
+fi
+
+: ${board:="arm64-usr"}
+
+# Helper scripts should be run from the same location as this script.
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+restart_in_chroot_if_needed "$@"
+
+#	+-- amd64-usr
+#	|+- arm64-usr
+#	||
+#	vv
+data="
+	+-ami
+	+-ami_vmdk
+	++pxe
+	++iso
+	++openstack
+	++openstack_mini
+	+-qemu
+	++qemu_uefi
+	+-qemu_uefi_secure
+	+-rackspace
+	+-rackspace_onmetal
+	+-rackspace_vhd
+	+-vagrant
+	+-vagrant_parallels
+	+-vagrant_virtualbox
+	+-vagrant_vmware_fusion
+	+-virtualbox
+	+-vmware
+	+-vmware_ova
+	+-vmware_raw
+	+-vmware_insecure
+	+-parallels
+	+-xen
+	+-gce
+	+-brightbox
+	+-cloudstack
+	+-cloudstack_vhd
+	+-digitalocean
+	+-exoscale
+	+-azure
+	+-hyperv
+	+-niftycloud
+	+-cloudsigma
+	++packet
+	+-interoute
+"
+
+for d in ${data}; do
+	format="${d:2}"
+	if [[ "${board}" == "amd64-usr" && "${d:0:1}" == "-" ]]; then
+		[[ -z ${V} ]] || echo "skipping ${format}"
+		continue
+	fi
+	if [[ "${board}" == "arm64-usr" && "${d:1:1}" == "-" ]]; then
+		[[ -z ${V} ]] || echo "skipping ${format}"
+		continue
+	fi
+
+	cmd="${SCRIPT_ROOT}/image_to_vm.sh --from=${SCRIPT_ROOT}/../build/images/${board}/${version} --board=${board} --format=${format}"
+	
+	[[ -z ${V} ]] || echo "building ${format}:"
+	echo "${cmd}"
+	eval "${cmd}"
+	echo ""
+done
