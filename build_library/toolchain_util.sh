@@ -143,7 +143,7 @@ get_board_binhost() {
     shift
 
     if [[ $# -eq 0 ]]; then
-        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION_ID}"
+        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION}"
     fi
 
     for ver in "$@"; do
@@ -172,7 +172,7 @@ get_sdk_libdir() {
 get_sdk_binhost() {
     local arch=$(get_sdk_arch) ver
     if [[ $# -eq 0 ]]; then
-        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION_ID}"
+        set -- "${COREOS_SDK_VERSION}" "${COREOS_VERSION}"
     fi
 
     for ver in "$@"; do
