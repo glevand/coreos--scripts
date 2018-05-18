@@ -48,6 +48,8 @@ DEFINE_boolean extract_update "${FLAGS_TRUE}" \
   "Extract the /usr partition for generating updates."
 DEFINE_string developer_data "" \
   "Insert a custom cloudinit file into the image."
+DEFINE_boolean copy_rootfs "${FLAGS_TRUE}" \
+  "Make a copy of rootfs and initrd."
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1

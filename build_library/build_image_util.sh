@@ -33,6 +33,55 @@ cleanup_mounts() {
   "${BUILD_LIBRARY_DIR}/disk_util" umount "$1" || true
 }
 
+copy_initrd () {
+  if [[ "${FLAGS_copy_rootfs}" == "${FLAGS_FALSE}" ||
+    "${IMAGE_BUILD_TYPE}" == "container" ]]; then
+      return 0
+  fi
+  if [[ -n "${JENKINS_BUILD}" ]]; then
+      info "JENKINS_BUILD: Skip initrd copy."
+      return 0
+  fi
+
+  local src="${BOARD_ROOT}/usr/share/bootengine/bootengine.cpio"
+  local dest="${BUILD_DIR}/${IMAGE_BUILD_TYPE}-initrd-copy"
+
+  if [[ ! -f ${src} ]]; then
+    info "Copying initrd: Not found, skipping: ${src}"
+    return 0
+  fi
+
+  info "Copying initrd to ${dest}"
+  sudo mkdir -p "${dest}"
+  pushd "${dest}"
+  cat ${src} | sudo cpio --extract --make-directories --preserve-modification-time
+  popd
+}
+
+copy_rootfs () {
+  if [[ "${FLAGS_copy_rootfs}" == "${FLAGS_FALSE}" ]]; then
+      return 0
+  fi
+  if [[ -n "${JENKINS_BUILD}" ]]; then
+      info "JENKINS_BUILD: Skip rootfs copy."
+      return 0
+  fi
+
+  local root_fs_dir="${1}"
+  local path="${2}"
+  local dest="${BUILD_DIR}/${IMAGE_BUILD_TYPE}-rootfs-copy"
+
+  info "Copying rootfs ${path} to ${dest}${path}"
+  sudo mkdir -p "${dest}${path}"
+  sudo rsync -a "${root_fs_dir}${path}/" "${dest}${path}/"
+}
+
+on_exit_cleanup () {
+  copy_rootfs "${root_fs_dir}" '/'
+  copy_initrd
+  cleanup_mounts "${root_fs_dir}"
+}
+
 delete_prompt() {
   echo "An error occurred in your build so your latest output directory" \
     "is invalid."
@@ -400,7 +449,8 @@ start_image() {
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
       mount "${disk_img}" "${root_fs_dir}"
-  trap "cleanup_mounts '${root_fs_dir}' && delete_prompt" EXIT
+
+  trap on_exit_cleanup && delete_prompt EXIT
 
   # First thing first, install baselayout to create a working filesystem.
   emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
@@ -527,6 +577,8 @@ EOF
 
   # Make the filesystem un-mountable as read-write and setup verity.
   if [[ ${disable_read_write} -eq ${FLAGS_TRUE} ]]; then
+    copy_rootfs ${root_fs_dir} "/usr"
+
     # Unmount /usr partition
     sudo umount --recursive "${root_fs_dir}/usr" || exit 1
 
@@ -568,8 +620,8 @@ EOF
   fi
 
   rm -rf "${BUILD_DIR}"/configroot
-  cleanup_mounts "${root_fs_dir}"
   trap - EXIT
+  on_exit_cleanup
 
   # This script must mount the ESP partition differently, so run it after unmount
   if [[ "${install_grub}" -eq 1 ]]; then
