@@ -18,6 +18,7 @@ sudo rm -rf src/build
 S=/mnt/host/source/src/scripts
 enter sudo emerge -uv --jobs=2 catalyst
 enter sudo ${S}/build_toolchains \
+    --debug \
     --sign="${SIGNING_USER}" \
     --sign_digests="${SIGNING_USER}" \
     --upload_root="${UPLOAD_ROOT}" \
