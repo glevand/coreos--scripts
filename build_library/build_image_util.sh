@@ -561,12 +561,7 @@ EOF
     setup_qemu_static "${root_fs_dir}"
     sudo chroot "${root_fs_dir}" /bin/bash << 'EOF'
       (cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp)
-      #setfiles -F /usr/lib/selinux/mcs/contexts/files/file_contexts /usr/lib/modules
-      setfiles -F -v /usr/lib/selinux/mcs/contexts/files/file_contexts /
-      setfiles -F -v /usr/lib/selinux/mcs/contexts/files/file_contexts /usr
-      if [[ -d /usr/share/oem ]]; then
-        setfiles -F -v /usr/lib/selinux/mcs/contexts/files/file_contexts /usr/share/oem
-      fi
+      setfiles -F /usr/lib/selinux/mcs/contexts/files/file_contexts /usr/lib/modules
 EOF
     clean_qemu_static "${root_fs_dir}"
   fi
