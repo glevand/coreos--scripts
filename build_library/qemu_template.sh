@@ -17,6 +17,7 @@ SSH_KEYS=""
 CLOUD_CONFIG_FILE=""
 IGNITION_CONFIG_FILE=""
 CONFIG_IMAGE=""
+LINUX_APPEND=""
 SAFE_ARGS=0
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
@@ -25,6 +26,7 @@ Options:
     -c FILE     Config drive as an iso or fat filesystem image.
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
+    -l CMDLINE  Text to append to Linux command line.
     -s          Safe settings: single simple cpu and no KVM.
     -h          this ;-)
 
@@ -45,8 +47,8 @@ die(){
 }
 
 check_conflict() {
-    if [ -n "${CLOUD_CONFIG_FILE}${CONFIG_IMAGE}${SSH_KEYS}" ]; then
-        echo "The -u -c and -a options cannot be combined!" >&2
+    if [ -n "${CLOUD_CONFIG_FILE}${CONFIG_IMAGE}${SSH_KEYS}${LINUX_APPEND}" ]; then
+        echo "The -u -c -a and -l options cannot be combined!" >&2
         exit 1
     fi
 }
@@ -67,6 +69,10 @@ while [ $# -ge 1 ]; do
         -a|-authorized-keys)
             check_conflict
             SSH_KEYS="$2"
+            shift 2 ;;
+        -l|-linux-append)
+            check_conflict
+            LINUX_APPEND="$2"
             shift 2 ;;
         -p|-ssh-port)
             SSH_PORT="$2"
@@ -117,6 +123,7 @@ if [ -z "${CONFIG_IMAGE}" ]; then
     trap "rm -rf '$CONFIG_DRIVE'" EXIT
     mkdir -p "${CONFIG_DRIVE}/openstack/latest"
 
+    echo "linux_append=\"${LINUX_APPEND}\"" > "${CONFIG_DRIVE}/openstack/latest/grub.cfg"
 
     if [ -n "$SSH_KEYS" ]; then
         if [ ! -f "$SSH_KEYS" ]; then
