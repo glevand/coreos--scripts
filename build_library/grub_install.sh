@@ -155,7 +155,8 @@ GRUB_TEMP_DIR=$(mktemp -d)
 if [[ ! -f "${ESP_DIR}/coreos/grub/grub.cfg.tar" ]]; then
     info "Generating grub.cfg memdisk"
 
-    if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
+    # dm-verity dosen't seem to be working on arm64
+    if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} && "${FLAGS_target}" != "arm64-usr" ]]; then
       # use dm-verity for /usr
       cat "${BUILD_LIBRARY_DIR}/grub.cfg" | \
         sed 's/@@MOUNTUSR@@/mount.usr=\/dev\/mapper\/usr verity.usr/' > \
