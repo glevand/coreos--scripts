@@ -11,6 +11,7 @@ enter() {
         verify_key=--verify-key=/etc/portage/gangue.asc
         sudo ln -f "${GS_DEVEL_CREDS}" chroot/etc/portage/gangue.json
         bin/cork enter --experimental -- env \
+            JENKINS_BUILD=1 \
             COREOS_DEV_BUILDS="${DOWNLOAD_ROOT}" \
             {FETCH,RESUME}COMMAND_GS="/usr/bin/gangue get \
 --json-key=/etc/portage/gangue.json $verify_key \

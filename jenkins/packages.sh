@@ -13,6 +13,7 @@ enter() {
         sudo ln -f "${GOOGLE_APPLICATION_CREDENTIALS}" \
             chroot/etc/portage/gangue.json
         bin/cork enter --experimental -- env \
+            JENKINS_BUILD=1 \
             CCACHE_DIR=/mnt/host/source/.cache/ccache \
             CCACHE_MAXSIZE=5G \
             COREOS_DEV_BUILDS="${DOWNLOAD_ROOT}" \

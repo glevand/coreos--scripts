@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+export JENKINS_BUILD=1
+
 enter() {
         bin/cork enter --experimental -- "$@"
 }
